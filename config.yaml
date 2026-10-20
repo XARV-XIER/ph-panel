@@ -1,0 +1,46 @@
+app:
+  name: "VPS Panel"
+  secret_key: "CHANGE_ME_IN_PRODUCTION"
+  debug: false
+  host: "0.0.0.0"
+  port: 8080
+
+database:
+  type: "sqlite"
+  path: "data/panel.db"
+
+lxc:
+  storage_pool: "default"
+  network_bridge: "lxcbr0"
+  templates_path: "lxc_templates"
+  default_memory: "512M"
+  default_cpu: "1"
+  default_disk: "5G"
+
+ssh_proxy:
+  enabled: true
+  domain: "yourdomain.com"
+  port_range_start: 22000
+  port_range_end: 22999
+  sshx_enabled: true
+
+themes:
+  default: "dark"
+  available:
+    - "dark"
+    - "light"
+    - "ocean"
+    - "forest"
+    - "sunset"
+
+security:
+  bcrypt_rounds: 12
+  session_timeout_hours: 24
+  max_login_attempts: 5
+  lockout_duration_minutes: 15
+
+logging:
+  level: "INFO"
+  file: "logs/panel.log"
+  max_size_mb: 10
+  backup_count: 5

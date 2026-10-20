@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Create VPS - {{ panel_name }}{% endblock %}
+
+{% set page_title = "Create VPS" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-card border border-card rounded-xl p-6 card">
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold">Create New VPS Instance</h2>
+            <p class="text-muted text-sm mt-1">Configure your new LXC container</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            <!-- Basic Info -->
+            <fieldset>
+                <legend class="text-sm font-medium text-muted mb-4">Basic Information</legend>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium mb-1.5">Display Name</label>
+                        <input type="text" id="name" name="name" required
+                               class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                               placeholder="My Web Server">
+                    </div>
+                    <div>
+                        <label for="hostname" class="block text-sm font-medium mb-1.5">Hostname</label>
+                        <input type="text" id="hostname" name="hostname" required
+                               class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                               placeholder="web-01"
+                               pattern="[a-z0-9-]+"
+                               title="Lowercase letters, numbers, and hyphens only">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- OS Template -->
+            <fieldset>
+                <legend class="text-sm font-medium text-muted mb-4">Operating System</legend>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="os-templates">
+                    {% for template in templates %}
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="os_template" value="{{ template.name }}" required
+                               class="sr-only peer" {% if loop.first %}checked{% endif %}>
+                        <div class="p-4 border-2 border-card rounded-xl bg-card-hover transition-all peer-checked:border-primary-500 peer-checked:bg-primary-500/10">
+                            <div class="font-medium">{{ template.display_name }}</div>
+                            <div class="text-xs text-muted mt-1">{{ template.description }}</div>
+                            <div class="text-xs text-muted mt-2">{{ template.architecture }}</div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <!-- Resources -->
+            <fieldset>
+                <legend class="text-sm font-medium text-muted mb-4">Resources</legend>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label for="cpu" class="block text-sm font-medium mb-1.5">CPU Cores</label>
+                        <select id="cpu" name="cpu" class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
+                            {% for c in [1, 2, 4, 8, 16] %}
+                            <option value="{{ c }}" {% if c == 1 %}selected{% endif %}>{{ c }} vCPU</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="memory" class="block text-sm font-medium mb-1.5">Memory (MB)</label>
+                        <select id="memory" name="memory" class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
+                            {% for m in [512, 1024, 2048, 4096, 8192, 16384] %}
+                            <option value="{{ m }}" {% if m == 512 %}selected{% endif %}>{{ m }} MB</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="disk" class="block text-sm font-medium mb-1.5">Disk (GB)</label>
+                        <select id="disk" name="disk" class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
+                            {% for d in [5, 10, 20, 50, 100, 200] %}
+                            <option value="{{ d }}" {% if d == 5 %}selected{% endif %}>{{ d }} GB</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Submit -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-card">
+                <a href="{{ url_for('dashboard') }}" class="px-6 py-3 rounded-lg text-sm font-medium text-muted hover:text-primary transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary px-6 py-3 rounded-lg text-sm font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Create VPS</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Console - {{ vps.name }} - {{ panel_name }}{% endblock %}
+
+{% set page_title = "Console: " + vps.name %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Web Console - {{ vps.name }}
+        </h2>
+        <p class="text-muted text-sm mt-1">Direct terminal access to your VPS</p>
+    </div>
+
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="px-4 py-3 border-b border-card flex items-center justify-between bg-tertiary/50">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-success"></span>
+                <span class="text-sm font-mono text-muted">{{ vps.hostname }}:~$</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-muted">SSH Port: {{ vps.ssh_port or 'N/A' }}</span>
+                <a href="{{ url_for('vps_detail', vps_id=vps.id) }}" class="text-sm text-muted hover:text-primary">Back to VPS</a>
+            </div>
+        </div>
+
+        <div class="h-[600px] relative">
+            <iframe id="console-frame"
+                    src="{{ ssh_info.sshx_url or '#' }}"
+                    class="w-full h-full border-0"
+                    frameborder="0"
+                    allow="clipboard-read; clipboard-write">
+            </iframe>
+            {% if not ssh_info.sshx_url %}
+            <div class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                <svg class="w-16 h-16 text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                </svg>
+                <h3 class="text-lg font-medium mb-2">SSHX Not Available</h3>
+                <p class="text-muted mb-6">Web terminal requires SSHX to be enabled in panel configuration.</p>
+                <div class="space-y-2 text-sm">
+                    <p class="font-mono text-primary-500">{{ ssh_info.command or 'ssh root@domain -p PORT' }}</p>
+                    <p class="font-mono text-primary-500">Password: {{ ssh_info.password }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if ssh_info.command %}
+    <div class="mt-6 bg-tertiary/50 border border-card rounded-xl p-6">
+        <h3 class="font-medium mb-3">Manual SSH Connection</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+                <label class="block text-muted mb-1">Command</label>
+                <div class="flex gap-2">
+                    <code class="flex-1 bg-card px-3 py-2 rounded font-mono text-xs break-all">{{ ssh_info.command }}</code>
+                    <button onclick="copyToClipboard('{{ ssh_info.command }}')" class="btn-primary px-3 py-2 rounded text-xs">Copy</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-muted mb-1">Password</label>
+                <div class="flex gap-2">
+                    <code class="flex-1 bg-card px-3 py-2 rounded font-mono text-xs">{{ ssh_info.password }}</code>
+                    <button onclick="copyToClipboard('{{ ssh_info.password }}')" class="btn-primary px-3 py-2 rounded text-xs">Copy</button>
+                </div>
+            </div>
+        </div>
+        <p class="text-xs text-muted mt-3">Use any SSH client: <code class="font-mono">ssh root@{{ ssh_info.domain }} -p {{ ssh_info.port }}</code></p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = event.target.closest('button');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+            setTimeout(() => btn.innerHTML = original, 1500);
+        });
+    }
+</script>
+{% endblock %}

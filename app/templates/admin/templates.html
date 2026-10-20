@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}OS Templates - {{ panel_name }}{% endblock %}
+
+{% set page_title = "OS Templates" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-xl font-semibold">OS Templates</h2>
+            <p class="text-muted text-sm mt-1">Manage available operating system templates for VPS creation</p>
+        </div>
+    </div>
+
+    <!-- Add Template Form -->
+    <div class="bg-card border border-card rounded-xl p-6 card mb-6">
+        <h3 class="font-medium mb-4">Add New Template</h3>
+        <form method="POST" class="space-y-4 max-w-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Template Name (slug)</label>
+                    <input type="text" name="name" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="ubuntu-24.04" pattern="[a-z0-9.-]+" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Display Name</label>
+                    <input type="text" name="display_name" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="Ubuntu 24.04 LTS" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Architecture</label>
+                    <select name="architecture" class="input-field w-full px-4 py-3 rounded-lg text-sm">
+                        <option value="amd64">amd64</option>
+                        <option value="arm64">arm64</option>
+                        <option value="i386">i386</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Status</label>
+                    <select name="is_active" class="input-field w-full px-4 py-3 rounded-lg text-sm">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Description</label>
+                <textarea name="description" rows="2" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="Brief description of this OS template"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Template URL (optional)</label>
+                <input type="url" name="template_url" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="https://images.linuxcontainers.org/...">
+            </div>
+            <button type="submit" class="btn-primary px-6 py-3 rounded-lg text-sm">Add Template</button>
+        </form>
+    </div>
+
+    <!-- Templates Table -->
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-tertiary/50">
+                    <tr class="text-left text-sm text-muted">
+                        <th class="px-6 py-3">Name</th>
+                        <th class="px-6 py-3">Display Name</th>
+                        <th class="px-6 py-3">Architecture</th>
+                        <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3">Description</th>
+                        <th class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    {% for template in templates %}
+                    <tr class="hover:bg-card-hover transition-colors">
+                        <td class="px-6 py-4 font-mono text-sm">{{ template.name }}</td>
+                        <td class="px-6 py-4 font-medium">{{ template.display_name }}</td>
+                        <td class="px-6 py-4 text-sm">{{ template.architecture }}</td>
+                        <td class="px-6 py-4">
+                            <span class="status-badge {% if template.is_active %}status-running{% else %}status-stopped{% endif %}">
+                                {% if template.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-muted max-w-xs truncate">{{ template.description or '-' }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <form method="POST" action="{{ url_for('admin_templates') }}" class="inline">
+                                    <input type="hidden" name="action" value="toggle">
+                                    <input type="hidden" name="template_id" value="{{ template.id }}">
+                                    <button type="submit" class="text-sm {% if template.is_active %}text-warning{% else %}text-success{% endif %} hover:underline">
+                                        {% if template.is_active %}Disable{% else %}Enable{% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Themes - {{ panel_name }}{% endblock %}
+
+{% set page_title = "Theme Management" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold">Theme Management</h2>
+        <p class="text-muted text-sm mt-1">Customize the panel appearance</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for theme in themes %}
+        <div class="bg-card border border-card rounded-xl p-6 card relative {% if theme.name == current_theme %}ring-2 ring-primary-500{% endif %}">
+            {% if theme.is_default %}
+            <span class="absolute top-3 right-3 px-2 py-0.5 bg-primary-500/20 text-primary-500 text-xs rounded">Default</span>
+            {% endif %}
+
+            <!-- Preview -->
+            <div class="mb-4 p-4 rounded-lg" style="background-color: {{ (theme.css_variables|fromjson)['--bg-primary'] }}; border: 1px solid {{ (theme.css_variables|fromjson)['--border'] }};">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg" style="background-color: {{ (theme.css_variables|fromjson)['--accent'] }};"></div>
+                    <div class="w-8 h-8 rounded-lg" style="background-color: {{ (theme.css_variables|fromjson)['--success'] }};"></div>
+                    <div class="w-8 h-8 rounded-lg" style="background-color: {{ (theme.css_variables|fromjson)['--warning'] }};"></div>
+                    <div class="w-8 h-8 rounded-lg" style="background-color: {{ (theme.css_variables|fromjson)['--danger'] }};"></div>
+                </div>
+                <div class="text-sm" style="color: {{ (theme.css_variables|fromjson)['--text-primary'] }};">
+                    Primary text
+                </div>
+                <div class="text-sm mt-1" style="color: {{ (theme.css_variables|fromjson)['--text-secondary'] }};">
+                    Secondary text
+                </div>
+            </div>
+
+            <h3 class="font-medium mb-1">{{ theme.display_name }}</h3>
+            <p class="text-xs text-muted mb-4">{{ theme.name }}</p>
+
+            <form method="POST" action="{{ url_for('admin_themes') }}">
+                <input type="hidden" name="theme" value="{{ theme.name }}">
+                {% if theme.name == current_theme %}
+                <button type="submit" class="w-full btn-success text-sm" disabled>Active</button>
+                {% else %}
+                <button type="submit" class="w-full btn-primary text-sm">Apply Theme</button>
+                {% endif %}
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add Custom Theme -->
+    <div class="mt-8 bg-card border border-card rounded-xl p-6 card">
+        <h3 class="font-medium mb-4">Add Custom Theme</h3>
+        <form class="space-y-4 max-w-2xl" method="POST" action="{{ url_for('admin_themes') }}">
+            <input type="hidden" name="action" value="create_theme">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Theme Name (slug)</label>
+                    <input type="text" name="name" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="my-custom-theme" pattern="[a-z0-9-]+" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Display Name</label>
+                    <input type="text" name="display_name" class="input-field w-full px-4 py-3 rounded-lg text-sm" placeholder="My Custom Theme" required>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">CSS Variables (JSON)</label>
+                <textarea name="css_variables" rows="6" class="input-field w-full px-4 py-3 rounded-lg text-sm font-mono" placeholder='{"--bg-primary": "#0f172a", "--bg-secondary": "#1e293b", ...}' required></textarea>
+            </div>
+            <button type="submit" class="btn-primary px-6 py-3 rounded-lg text-sm">Create Theme</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

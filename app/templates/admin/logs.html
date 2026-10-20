@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Logs - {{ panel_name }}{% endblock %}
+
+{% set page_title = "Audit Logs" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold">Audit Logs</h2>
+        <p class="text-muted text-sm mt-1">System activity and security audit trail</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-card border border-card rounded-xl p-4 card mb-6">
+        <form method="GET" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium mb-1.5">Filter by Action</label>
+                <select name="action" class="input-field w-full px-4 py-2 rounded-lg text-sm">
+                    <option value="">All Actions</option>
+                    <option value="login">Login</option>
+                    <option value="login_failed">Login Failed</option>
+                    <option value="vps_create">VPS Create</option>
+                    <option value="vps_delete">VPS Delete</option>
+                    <option value="vps_start">VPS Start</option>
+                    <option value="vps_stop">VPS Stop</option>
+                    <option value="vps_restart">VPS Restart</option>
+                    <option value="vps_reinstall">VPS Reinstall</option>
+                    <option value="snapshot_create">Snapshot Create</option>
+                    <option value="snapshot_restore">Snapshot Restore</option>
+                </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium mb-1.5">Date Range</label>
+                <input type="date" name="date_from" class="input-field w-full px-4 py-2 rounded-lg text-sm">
+            </div>
+            <button type="submit" class="btn-primary px-6 py-2 rounded-lg text-sm self-end">Filter</button>
+        </form>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-tertiary/50">
+                    <tr class="text-left text-sm text-muted">
+                        <th class="px-6 py-3">Time</th>
+                        <th class="px-6 py-3">User</th>
+                        <th class="px-6 py-3">Action</th>
+                        <th class="px-6 py-3">Resource</th>
+                        <th class="px-6 py-3">Details</th>
+                        <th class="px-6 py-3">IP Address</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    {% for log in logs %}
+                    <tr class="hover:bg-card-hover transition-colors">
+                        <td class="px-6 py-4 text-sm font-mono">{{ log.created_at[:19] }}</td>
+                        <td class="px-6 py-4">
+                            {% if log.username %}
+                            <span class="font-medium">{{ log.username }}</span>
+                            {% else %}
+                            <span class="text-muted">System</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 bg-primary-500/20 text-primary-500 text-xs rounded">{{ log.action }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            {% if log.resource_type %}
+                            {{ log.resource_type }}{% if log.resource_id %} #{{ log.resource_id }}{% endif %}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-muted max-w-md truncate">{{ log.details or '-' }}</td>
+                        <td class="px-6 py-4 text-sm font-mono text-muted">{{ log.ip_address or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if logs|length == 0 %}
+        <div class="p-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            <p class="text-muted">No audit logs found</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination placeholder -->
+    <div class="mt-6 flex items-center justify-center gap-2">
+        <button class="px-4 py-2 border border-card rounded-lg text-sm text-muted hover:bg-card-hover" disabled>Previous</button>
+        <span class="px-4 py-2 text-sm text-muted">Page 1</span>
+        <button class="px-4 py-2 border border-card rounded-lg text-sm text-muted hover:bg-card-hover">Next</button>
+    </div>
+</div>
+{% endblock %}

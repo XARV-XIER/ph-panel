@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}SSHX Terminal - {{ vps.name }} - {{ panel_name }}{% endblock %}
+
+{% set page_title = "SSHX: " + vps.name %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            SSHX Web Terminal - {{ vps.name }}
+        </h2>
+        <p class="text-muted text-sm mt-1">Full-featured collaborative terminal in your browser</p>
+    </div>
+
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="px-4 py-3 border-b border-card flex items-center justify-between bg-tertiary/50">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-success"></span>
+                <span class="text-sm font-mono text-muted">{{ vps.hostname }}</span>
+                <span class="px-2 py-0.5 bg-success/20 text-success text-xs rounded">LIVE</span>
+            </div>
+            <a href="{{ url_for('vps_detail', vps_id=vps.id) }}" class="text-sm text-muted hover:text-primary">Back to VPS</a>
+        </div>
+
+        <div class="h-[700px] relative">
+            <iframe id="sshx-frame"
+                    src="https://sshx.io/terminal/{{ vps.id }}?embed=true"
+                    class="w-full h-full border-0"
+                    frameborder="0"
+                    allow="clipboard-read; clipboard-write; fullscreen">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-card border border-card rounded-xl p-4 card">
+            <h4 class="font-medium text-sm text-muted mb-2">Features</h4>
+            <ul class="space-y-1 text-sm">
+                <li class="flex items-center gap-2 text-muted"><svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Real-time collaboration</li>
+                <li class="flex items-center gap-2 text-muted"><svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Clipboard sync</li>
+                <li class="flex items-center gap-2 text-muted"><svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>File transfer</li>
+                <li class="flex items-center gap-2 text-muted"><svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Multiple panes</li>
+            </ul>
+        </div>
+        <div class="bg-card border border-card rounded-xl p-4 card">
+            <h4 class="font-medium text-sm text-muted mb-2">Connection Info</h4>
+            <dl class="space-y-1 text-sm">
+                <div class="flex justify-between"><dt class="text-muted">Host</dt><dd class="font-mono">{{ vps.hostname }}</dd></div>
+                <div class="flex justify-between"><dt class="text-muted">IP</dt><dd class="font-mono">{{ vps.ipv4_address or 'N/A' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-muted">SSH Port</dt><dd class="font-mono">{{ vps.ssh_port or 'N/A' }}</dd></div>
+            </dl>
+        </div>
+        <div class="bg-card border border-card rounded-xl p-4 card">
+            <h4 class="font-medium text-sm text-muted mb-2">Quick Actions</h4>
+            <div class="space-y-2">
+                <a href="{{ url_for('console', vps_id=vps.id) }}" class="w-full btn-primary px-4 py-2 rounded-lg text-center text-sm">Legacy Console</a>
+                <a href="{{ url_for('vps_detail', vps_id=vps.id) }}" class="w-full px-4 py-2 rounded-lg text-center text-sm border border-card text-muted hover:bg-card-hover">VPS Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

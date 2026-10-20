@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Users - {{ panel_name }}{% endblock %}
+
+{% set page_title = "User Management" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold">User Management</h2>
+        <p class="text-muted text-sm mt-1">Manage panel users and their permissions</p>
+    </div>
+
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-tertiary/50">
+                    <tr class="text-left text-sm text-muted">
+                        <th class="px-6 py-3">ID</th>
+                        <th class="px-6 py-3">Username</th>
+                        <th class="px-6 py-3">Role</th>
+                        <th class="px-6 py-3">Theme</th>
+                        <th class="px-6 py-3">VPS Count</th>
+                        <th class="px-6 py-3">Created</th>
+                        <th class="px-6 py-3">Last Login</th>
+                        <th class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    {% for user in users %}
+                    <tr class="hover:bg-card-hover transition-colors">
+                        <td class="px-6 py-4 text-sm font-mono">{{ user.id }}</td>
+                        <td class="px-6 py-4 font-medium">{{ user.username }}</td>
+                        <td class="px-6 py-4">
+                            <span class="status-badge {% if user.is_admin %}status-running{% else %}status-stopped{% endif %}">
+                                {% if user.is_admin %}Admin{% else %}User{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">{{ user.theme }}</td>
+                        <td class="px-6 py-4 text-sm text-muted">
+                            {% set user_vps = all_vps|selectattr('user_id', 'equalto', user.id)|list %}
+                            {{ user_vps|length }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-muted">{{ user.created_at[:10] if user.created_at else 'N/A' }}</td>
+                        <td class="px-6 py-4 text-sm text-muted">{{ user.last_login[:16] if user.last_login else 'Never' }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                {% if not user.is_admin %}
+                                <form method="POST" action="{{ url_for('admin_users') }}" class="inline">
+                                    <input type="hidden" name="action" value="make_admin">
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button type="submit" class="text-sm text-primary-500 hover:underline">Make Admin</button>
+                                </form>
+                                {% else %}
+                                <span class="text-sm text-muted">Admin</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

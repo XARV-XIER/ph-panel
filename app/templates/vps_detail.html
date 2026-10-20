@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vps.name }} - {{ panel_name }}{% endblock %}
+
+{% set page_title = vps.name %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h2 class="text-xl font-semibold">{{ vps.name }}</h2>
+            <p class="text-muted text-sm">{{ vps.hostname }} · {{ vps.os_template }} · Created {{ vps.created_at[:10] }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="status-badge {% if vps.status == 'running' %}status-running{% elif vps.status == 'stopped' %}status-stopped{% elif vps.status == 'creating' %}status-creating{% else %}status-error{% endif %}">
+                {{ vps.status|capitalize }}
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- SSH Access -->
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <h3 class="font-medium mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    SSH Access
+                </h3>
+                {% if ssh_info.command %}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-muted mb-1">SSH Command</label>
+                        <div class="flex gap-2">
+                            <code class="flex-1 bg-tertiary px-4 py-3 rounded-lg text-sm font-mono break-all">{{ ssh_info.command }}</code>
+                            <button onclick="copyToClipboard('{{ ssh_info.command }}')" class="btn-primary px-4 py-3 rounded-lg flex items-center gap-2" title="Copy">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2 2 2 0 012-2M8 5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H8"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-muted mb-1">Root Password</label>
+                        <div class="flex gap-2">
+                            <code class="flex-1 bg-tertiary px-4 py-3 rounded-lg text-sm font-mono" id="password-display">{{ ssh_info.password }}</code>
+                            <button onclick="copyToClipboard('{{ ssh_info.password }}')" class="btn-primary px-4 py-3 rounded-lg flex items-center gap-2" title="Copy">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2 2 2 0 012-2M8 5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H8"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% if ssh_info.sshx_url %}
+                    <div>
+                        <a href="{{ ssh_info.sshx_url }}" target="_blank" class="btn-success px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            Open SSHX Web Terminal
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-muted">SSH proxy not configured for this VPS.</p>
+                {% endif %}
+            </div>
+
+            <!-- Specifications -->
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <h3 class="font-medium mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    Specifications
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-tertiary rounded-xl">
+                        <p class="text-2xl font-bold">{{ vps.cpu_cores }}</p>
+                        <p class="text-xs text-muted">vCPU</p>
+                    </div>
+                    <div class="text-center p-4 bg-tertiary rounded-xl">
+                        <p class="text-2xl font-bold">{{ vps.memory_mb }}</p>
+                        <p class="text-xs text-muted">MB RAM</p>
+                    </div>
+                    <div class="text-center p-4 bg-tertiary rounded-xl">
+                        <p class="text-2xl font-bold">{{ vps.disk_gb }}</p>
+                        <p class="text-xs text-muted">GB Disk</p>
+                    </div>
+                    <div class="text-center p-4 bg-tertiary rounded-xl">
+                        <p class="text-2xl font-bold">{{ vps.ipv4_address or 'N/A' }}</p>
+                        <p class="text-xs text-muted">IPv4</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Power Controls -->
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <h3 class="font-medium mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Power Controls
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <form method="POST" action="{{ url_for('vps_action', vps_id=vps.id) }}">
+                        <input type="hidden" name="action" value="start">
+                        <button type="submit" class="btn-success px-4 py-2.5 rounded-lg flex items-center gap-2" {% if vps.status == 'running' %}disabled{% endif %}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                            Start
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('vps_action', vps_id=vps.id) }}">
+                        <input type="hidden" name="action" value="stop">
+                        <button type="submit" class="btn-danger px-4 py-2.5 rounded-lg flex items-center gap-2" {% if vps.status == 'stopped' %}disabled{% endif %}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                            Stop
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('vps_action', vps_id=vps.id) }}">
+                        <input type="hidden" name="action" value="force_stop">
+                        <button type="submit" class="btn-danger px-4 py-2.5 rounded-lg flex items-center gap-2 opacity-75" {% if vps.status == 'stopped' %}disabled{% endif %}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            Force Stop
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('vps_action', vps_id=vps.id) }}">
+                        <input type="hidden" name="action" value="restart">
+                        <button type="submit" class="btn-warning px-4 py-2.5 rounded-lg flex items-center gap-2" {% if vps.status != 'running' %}disabled{% endif %}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Restart
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Snapshots -->
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-medium flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Snapshots
+                    </h3>
+                    <button onclick="createSnapshot()" class="btn-primary px-3 py-1.5 rounded-lg text-sm flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Create</span>
+                    </button>
+                </div>
+                {% if snapshots %}
+                <div class="space-y-2">
+                    {% for snap in snapshots %}
+                    <div class="flex items-center justify-between p-3 bg-tertiary rounded-lg">
+                        <div>
+                            <p class="font-medium">{{ snap.name }}</p>
+                            <p class="text-xs text-muted">{{ snap.created_at }}</p>
+                        </div>
+                        <form method="POST" action="{{ url_for('vps_snapshot_restore', vps_id=vps.id, snapshot_name=snap.name) }}" onsubmit="return confirm('Restore this snapshot?')">
+                            <button type="submit" class="btn-warning px-3 py-1.5 rounded-lg text-sm">Restore</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">No snapshots yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Resource Usage -->
+            {% if usage %}
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <h3 class="font-medium mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Resource Usage
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {% if usage.cpu %}
+                    <div class="p-4 bg-tertiary rounded-xl">
+                        <p class="text-sm text-muted mb-1">CPU Usage</p>
+                        <p class="text-xl font-bold">{{ "%.1f"|format(usage.cpu.usage or 0) }}%</p>
+                    </div>
+                    {% endif %}
+                    {% if usage.memory %}
+                    <div class="p-4 bg-tertiary rounded-xl">
+                        <p class="text-sm text-muted mb-1">Memory</p>
+                        <p class="text-xl font-bold">{{ "%.1f"|format((usage.memory.usage or 0) / 1024 / 1024) }} MB / {{ vps.memory_mb }} MB</p>
+                    </div>
+                    {% endif %}
+                    {% if usage.network %}
+                    <div class="p-4 bg-tertiary rounded-xl">
+                        <p class="text-sm text-muted mb-1">Network</p>
+                        <p class="text-xl font-bold">{{ "%.1f"|format((usage.network.eth0?.rx_bytes or 0) / 1024 / 1024) }} MB ↓ / {{ "%.1f"|format((usage.network.eth0?.tx_bytes or 0) / 1024 / 1024) }} MB ↑</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="space-y-4">
+            <div class="bg-card border border-card rounded-xl p-6 card">
+                <h3 class="font-medium mb-4">Actions</h3>
+                <div class="space-y-2">
+                    <a href="{{ url_for('vps_console', vps_id=vps.id) }}" class="w-full btn-primary px-4 py-2.5 rounded-lg text-center text-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Web Console
+                    </a>
+                    <a href="{{ url_for('vps_console', vps_id=vps.id) }}?sshx=1" target="_blank" class="w-full btn-success px-4 py-2.5 rounded-lg text-center text-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        SSHX Terminal
+                    </a>
+                    <button onclick="showReinstallModal()" class="w-full btn-warning px-4 py-2.5 rounded-lg text-center text-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Reinstall OS
+                    </button>
+                    <button onclick="showResizeModal()" class="w-full px-4 py-2.5 rounded-lg text-center text-sm flex items-center justify-center gap-2 border border-card text-muted hover:bg-card-hover">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                        Resize Resources
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-card border border-card rounded-xl p-6 card border-danger/30">
+                <h3 class="font-medium mb-4 text-danger flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Danger Zone
+                </h3>
+                <button onclick="confirmDelete()" class="w-full btn-danger px-4 py-2.5 rounded-lg text-center text-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Delete VPS
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reinstall Modal -->
+<div id="reinstall-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50">
+    <div class="bg-card border border-card rounded-xl p-6 w-full max-w-md card animate-slide-up">
+        <h3 class="font-semibold mb-4">Reinstall OS</h3>
+        <p class="text-muted text-sm mb-6">This will destroy all data on the VPS. Choose a new OS template:</p>
+        <form method="POST" action="{{ url_for('vps_reinstall', vps_id=vps.id) }}">
+            <div class="space-y-2 max-h-60 overflow-y-auto">
+                {% for template in templates %}
+                <label class="flex items-center gap-3 p-3 border border-card rounded-lg cursor-pointer hover:bg-card-hover">
+                    <input type="radio" name="os_template" value="{{ template.name }}" required class="text-primary-600" {% if template.name == vps.os_template %}checked{% endif %}>
+                    <span>{{ template.display_name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="hideReinstallModal()" class="px-4 py-2 rounded-lg text-sm text-muted hover:bg-tertiary">Cancel</button>
+                <button type="submit" class="btn-danger px-4 py-2 rounded-lg text-sm">Reinstall</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resize Modal -->
+<div id="resize-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50">
+    <div class="bg-card border border-card rounded-xl p-6 w-full max-w-md card animate-slide-up">
+        <h3 class="font-semibold mb-4">Resize Resources</h3>
+        <form method="POST" action="{{ url_for('vps_resize', vps_id=vps.id) }}" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1.5">CPU Cores (current: {{ vps.cpu_cores }})</label>
+                <select name="cpu" class="input-field w-full px-4 py-3 rounded-lg text-sm">
+                    {% for c in [1, 2, 4, 8, 16] %}
+                    <option value="{{ c }}" {% if c == vps.cpu_cores %}selected{% endif %}>{{ c }} vCPU</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Memory MB (current: {{ vps.memory_mb }})</label>
+                <select name="memory" class="input-field w-full px-4 py-3 rounded-lg text-sm">
+                    {% for m in [512, 1024, 2048, 4096, 8192, 16384] %}
+                    <option value="{{ m }}" {% if m == vps.memory_mb %}selected{% endif %}>{{ m }} MB</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Disk GB (current: {{ vps.disk_gb }})</label>
+                <select name="disk" class="input-field w-full px-4 py-3 rounded-lg text-sm">
+                    {% for d in [5, 10, 20, 50, 100, 200] %}
+                    <option value="{{ d }}" {% if d == vps.disk_gb %}selected{% endif %}>{{ d }} GB</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="hideResizeModal()" class="px-4 py-2 rounded-lg text-sm text-muted hover:bg-tertiary">Cancel</button>
+                <button type="submit" class="btn-primary px-4 py-2 rounded-lg text-sm">Resize</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Copied to clipboard');
+        });
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-card border border-card rounded-lg p-3 card animate-slide-in';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function createSnapshot() {
+        const name = prompt('Snapshot name:', `snapshot-${Date.now()}`);
+        if (!name) return;
+        fetch(`/vps/{{ vps.id }}/snapshot`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `name=${encodeURIComponent(name)}`
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                showToast('Snapshot created');
+                setTimeout(() => location.reload(), 500);
+            } else {
+                alert(data.error);
+            }
+        });
+    }
+
+    function showReinstallModal() {
+        document.getElementById('reinstall-modal').classList.remove('hidden');
+        document.getElementById('reinstall-modal').classList.add('flex');
+    }
+
+    function hideReinstallModal() {
+        document.getElementById('reinstall-modal').classList.add('hidden');
+        document.getElementById('reinstall-modal').classList.remove('flex');
+    }
+
+    function showResizeModal() {
+        document.getElementById('resize-modal').classList.remove('hidden');
+        document.getElementById('resize-modal').classList.add('flex');
+    }
+
+    function hideResizeModal() {
+        document.getElementById('resize-modal').classList.add('hidden');
+        document.getElementById('resize-modal').classList.remove('flex');
+    }
+
+    function confirmDelete() {
+        if (confirm('Are you sure you want to delete this VPS? This cannot be undone.')) {
+            // In a real app, you'd call a delete API endpoint
+            alert('Delete functionality would be implemented here');
+        }
+    }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes slide-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up { animation: slide-up 0.2s ease-out; }
+    @keyframes slide-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-in { animation: slide-in 0.2s ease-out; }
+</script>
+{% endblock %}

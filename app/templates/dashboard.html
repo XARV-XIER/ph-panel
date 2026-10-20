@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ panel_name }}{% endblock %}
+
+{% set page_title = "My VPS" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-card border border-card rounded-xl p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-muted text-sm">Total VPS</p>
+                    <p class="text-3xl font-bold mt-1">{{ vps_list|length }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-primary-600/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-card border border-card rounded-xl p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-muted text-sm">Running</p>
+                    <p class="text-3xl font-bold mt-1">{{ vps_list|selectattr('status', 'equalto', 'running')|list|length }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-card border border-card rounded-xl p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-muted text-sm">Stopped</p>
+                    <p class="text-3xl font-bold mt-1">{{ vps_list|selectattr('status', 'equalto', 'stopped')|list|length }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-danger/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m-2 2l2 2m-2-2l-2 2m2-2l-2-2"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-card border border-card rounded-xl p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-muted text-sm">Total Resources</p>
+                    <p class="text-3xl font-bold mt-1">
+                        {{ vps_list|sum(attribute='cpu_cores') }} vCPU · {{ vps_list|sum(attribute='memory_mb') }} MB RAM
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VPS List -->
+    <div class="bg-card border border-card rounded-xl card overflow-hidden">
+        <div class="px-6 py-4 border-b border-card flex items-center justify-between">
+            <h2 class="text-lg font-semibold">Your VPS Instances</h2>
+            <a href="{{ url_for('create_vps') }}" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Create VPS</span>
+            </a>
+        </div>
+
+        {% if vps_list %}
+        <div class="divide-y divide-border">
+            {% for vps in vps_list %}
+            <div class="px-6 py-4 hover:bg-card-hover transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-4 min-w-0 flex-1">
+                        <div class="w-12 h-12 rounded-xl bg-primary-600/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-medium truncate">{{ vps.name }}</h3>
+                            <p class="text-sm text-muted truncate">{{ vps.hostname }} · {{ vps.os_template }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="status-badge {% if vps.status == 'running' %}status-running{% elif vps.status == 'stopped' %}status-stopped{% elif vps.status == 'creating' %}status-creating{% else %}status-error{% endif %}">
+                            {{ vps.status|capitalize }}
+                        </span>
+
+                        <div class="hidden sm:flex items-center gap-4 text-sm text-muted">
+                            <span>{{ vps.cpu_cores }} vCPU</span>
+                            <span>{{ vps.memory_mb }} MB</span>
+                            <span>{{ vps.disk_gb }} GB</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <a href="{{ url_for('vps_detail', vps_id=vps.id) }}" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-medium">
+                                Manage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="px-6 py-16 text-center">
+            <div class="w-16 h-16 rounded-full bg-tertiary flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium mb-2">No VPS instances yet</h3>
+            <p class="text-muted mb-6">Create your first VPS to get started</p>
+            <a href="{{ url_for('create_vps') }}" class="btn-primary px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Create Your First VPS</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
