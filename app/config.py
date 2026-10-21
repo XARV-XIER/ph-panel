@@ -7,7 +7,7 @@ import yaml
 from pathlib import Path
 from functools import lru_cache
 
-BASE_DIR = Path(__file__).parent.parent.parent
+BASE_DIR = Path(__file__).parent.parent
 
 
 @lru_cache()
