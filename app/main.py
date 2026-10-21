@@ -9,7 +9,7 @@ from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.security import check_password_hash
 
-BASE_DIR = Path(__file__).parent.parent.parent
+BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 from app.config import get_config
@@ -109,6 +109,54 @@ def logout():
         AuditLog.log(user["id"], "logout", "auth", None, f"User {user['username']} logged out", request.remote_addr)
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    config = get_config()
+    if not config.get("app", {}).get("allow_registration", True):
+        flash("Registration is disabled", "danger")
+        return redirect(url_for("login"))
+    
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        password_confirm = request.form.get("password_confirm", "")
+        
+        if not username or not password:
+            flash("All fields required", "danger")
+        elif password != password_confirm:
+            flash("Passwords do not match", "danger")
+        elif User.get_by_username(username):
+            flash("Username already exists", "danger")
+        else:
+            User.create(username, password, is_admin=False)
+            flash("Account created. Please login.", "success")
+            return redirect(url_for("login"))
+    
+    return render_template("register.html")
+
+
+@app.route("/admin/vps/assign", methods=["POST"])
+@login_required
+@admin_required
+def admin_assign_vps():
+    user_id = request.form.get("user_id", type=int)
+    vps_id = request.form.get("vps_id", type=int)
+    
+    if not user_id or not vps_id:
+        flash("User and VPS required", "danger")
+        return redirect(url_for("admin_dashboard"))
+    
+    vps = VPSInstance.get_by_id(vps_id)
+    if not vps:
+        flash("VPS not found", "danger")
+        return redirect(url_for("admin_dashboard"))
+    
+    VPSInstance.update(vps_id, user_id=user_id)
+    AuditLog.log(get_current_user()["id"], "vps_assign", "vps", vps_id, f"Assigned VPS {vps['name']} to user {user_id}", request.remote_addr)
+    flash("VPS assigned", "success")
+    return redirect(url_for("admin_dashboard"))
 
 
 @app.route("/dashboard")
