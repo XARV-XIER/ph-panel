@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Register - {{ panel_name }}{% endblock %}
+
+{% block auth_content %}
+<div class="w-full max-w-md">
+    <div class="bg-card border border-card rounded-2xl p-8 card">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-2xl bg-primary-600 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold">{{ panel_name }}</h1>
+            <p class="text-muted mt-1">Create your account</p>
+        </div>
+
+        <form method="POST" class="space-y-5">
+            <div>
+                <label for="username" class="block text-sm font-medium mb-1.5">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username"
+                       class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                       placeholder="Choose a username">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium mb-1.5">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="new-password"
+                       class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                       placeholder="Create password">
+            </div>
+
+            <div>
+                <label for="password_confirm" class="block text-sm font-medium mb-1.5">Confirm Password</label>
+                <input type="password" id="password_confirm" name="password_confirm" required autocomplete="new-password"
+                       class="input-field w-full px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                       placeholder="Confirm password">
+            </div>
+
+            <button type="submit" class="btn-primary w-full py-3 rounded-lg font-medium text-sm hover:shadow-lg transition-shadow">
+                Create Account
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-muted">
+            <p>Already have an account? <a href="{{ url_for('login') }}" class="text-primary-500 hover:underline">Sign in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
