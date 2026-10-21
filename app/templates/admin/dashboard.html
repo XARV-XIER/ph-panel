@@ -137,6 +137,17 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-muted">{{ vps.created_at[:10] }}</td>
+                        <td class="px-6 py-4">
+                            <form method="POST" action="{{ url_for('admin_assign_vps') }}" class="inline">
+                                <input type="hidden" name="vps_id" value="{{ vps.id }}">
+                                <select name="user_id" class="input-field px-3 py-1.5 text-sm rounded-lg" onchange="this.form.submit()">
+                                    <option value="">Unassigned</option>
+                                    {% for u in users %}
+                                    <option value="{{ u.id }}" {% if u.id == vps.user_id %}selected{% endif %}>{{ u.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
