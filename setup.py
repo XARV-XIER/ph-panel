@@ -86,6 +86,7 @@ def main():
     config["app"]["name"] = panel_name
     config["app"]["secret_key"] = secret_key
     config["app"]["debug"] = False
+    config["app"]["allow_registration"] = True
 
     config["ssh_proxy"]["enabled"] = ssh_proxy_enabled
     config["ssh_proxy"]["domain"] = panel_domain
@@ -118,7 +119,7 @@ def main():
     print()
     print("Next steps:")
     print("  1. Run: python -m app.main")
-    print("  2. Access panel at http://localhost:8080")
+    print("  2. Access panel at http://localhost:5000")
     print("=" * 50)
 
 
